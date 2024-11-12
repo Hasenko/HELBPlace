@@ -16,7 +16,7 @@ class CanvasDetailView(DetailView):
 
 class CanvasCreateView(LoginRequiredMixin, CreateView):
     model = Canvas
-    fields= ['title', 'width', 'height', 'time_limite']
+    fields= ['title', 'width', 'height', 'time_to_wait']
 
     def form_valid(self, form):
         form.instance.author = self.request.user

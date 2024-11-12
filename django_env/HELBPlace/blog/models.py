@@ -21,7 +21,7 @@ class Canvas(models.Model):
     title = models.CharField(max_length=100)
     width = models.PositiveIntegerField(default=100)
     height = models.PositiveIntegerField(default=100)
-    time_limite = models.PositiveIntegerField(default=3)
+    time_to_wait = models.PositiveIntegerField(default=3)
 
     content = models.TextField()
 
