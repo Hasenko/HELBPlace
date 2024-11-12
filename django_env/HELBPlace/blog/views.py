@@ -3,51 +3,44 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Post
+from .models import Canvas
 
-# Create your views here.
-def home(request):
-    context = {
-        'posts': Post.objects.all()
-    }
-    return render(request, 'blog/home.html', context) # search in templates folder the file blog/home.html and pass a parameter context
-
-class PostListView(ListView):
-    model = Post
+class CanvasListView(ListView):
+    model = Canvas
     template_name = 'blog/home.html' # by default : <app>/<model>_<viewtype>.html
-    context_object_name = 'posts'
-    ordering = ['-date_posted']
+    context_object_name = 'canvases'
+    ordering = ['-date_posted'] # replace by 'intensity' of the canvas
 
-class PostDetailView(DetailView):
-    model = Post
+class CanvasDetailView(DetailView):
+    model = Canvas
 
-class PostCreateView(LoginRequiredMixin, CreateView):
-    model = Post
-    fields= ['title', 'content']
+class CanvasCreateView(LoginRequiredMixin, CreateView):
+    model = Canvas
+    fields= ['title', 'width', 'height', 'time_limite']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
-class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Post
-    fields= ['title', 'content']
+class CanvasUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Canvas
+    fields= ['content']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
     def test_func(self):
-        post = self.get_object()
-        return self.request.user == post.author
+        canvas = self.get_object()
+        return self.request.user == canvas.author
 
-class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Post
+class CanvasDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Canvas
     success_url = '/blog' # weird
 
     def test_func(self):
-        post = self.get_object()
-        return self.request.user == post.author
+        canvas = self.get_object()
+        return self.request.user == canvas.author
 
 def about(request):
     context = {

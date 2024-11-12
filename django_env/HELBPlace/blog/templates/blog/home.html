@@ -1,17 +1,17 @@
 {% extends "blog/base.html" %}
 
 {% block content %}
-    <!-- for each post in the posts disctionnary passed via context, get title, author, date_posted and content -->
-    {% for post in posts %} 
+    <!-- for each post in the canvas disctionnary passed via context, get title, author, date_posted and content -->
+    {% for canvas in canvases %} 
         <article class="media content-section">
-            <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}" alt="author image">
+            <img class="rounded-circle article-img" src="{{ canvas.author.profile.image.url }}" alt="author image">
             <div class="media-body">
                 <div class="article-metadata">
-                    <a class="mr-2" href="#">{{ post.author }}</a>
-                    <small class="text-muted">{{ post.date_posted|date:"d/m/Y, H:i:s" }}</small>
+                    <a class="mr-2" href="#">{{ canvas.author }}</a>
+                    <small class="text-muted">{{ canvas.date_posted|date:"d/m/Y, H:i:s" }}</small>
                 </div>
-                <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
-                <p class="article-content">{{ post.content }}</p>
+                <h2><a class="article-title" href="{% url 'canvas-detail' canvas.id %}">{{ canvas.title }}</a></h2>
+                <p class="article-content">{{ canvas.content }}</p>
             </div>
         </article>
     {% endfor %}
