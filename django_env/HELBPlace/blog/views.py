@@ -13,6 +13,29 @@ class CanvasListView(ListView):
 
 class CanvasDetailView(DetailView):
     model = Canvas
+    
+    def get_context_data(self, **kwargs):
+        def get_pixel_list(content):
+            pixel_list = []
+            i = 0
+            pixel = ""
+            for letter in content:
+                if i%7 == 0 and i != 0:
+                    pixel_list.append(pixel)
+                    pixel = ""
+
+                pixel += letter
+                i += 1
+
+            pixel_list.append(pixel)
+
+            return pixel_list
+
+        context = super().get_context_data(**kwargs)
+        content = self.object.content
+
+        context['pixel_list'] = get_pixel_list(content)
+        return context
 
 class CanvasCreateView(LoginRequiredMixin, CreateView):
     model = Canvas

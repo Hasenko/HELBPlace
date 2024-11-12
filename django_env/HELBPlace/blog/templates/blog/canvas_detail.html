@@ -14,7 +14,21 @@
                 {% endif %}
             </div>
             <h2 class="article-title">{{ object.title }}</h2>
-            <p class="article-content">{{ object.content }}</p>
+            <form method="POST">
+                {% csrf_token %}
+                <table class="pixel-grid">
+                    <tr>
+                    {% for color in pixel_list %}
+                        <td>
+                            <button type="submit" class="pixel" style="background-color: {{ color }};"></button>
+                        </td>
+                        {% if forloop.counter|divisibleby:object.width %}
+                    </tr>
+                    <tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </form>
         </div>
     </article>
 {% endblock content %}

@@ -23,7 +23,7 @@ class Canvas(models.Model):
     height = models.PositiveIntegerField(default=100)
     time_to_wait = models.PositiveIntegerField(default=3)
 
-    content = models.TextField()
+    content = models.TextField(default='blank')
 
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -33,3 +33,11 @@ class Canvas(models.Model):
 
     def get_absolute_url(self):
         return reverse('canvas-detail', kwargs={'pk': self.pk})
+    
+    def save(self):
+        def blank(width, height):
+            return "#FFFFFF" * width * height
+
+        if self.content == "blank":
+            self.content = blank(self.width, self.height)
+        return super().save()
