@@ -28,6 +28,22 @@ class Canvas(models.Model):
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def get_pixel_list(content):
+        pixel_list = []
+        i = 0
+        pixel = ""
+        for letter in content:
+            if i%7 == 0 and i != 0:
+                pixel_list.append(pixel)
+                pixel = ""
+
+            pixel += letter
+            i += 1
+
+        pixel_list.append(pixel)
+
+        return pixel_list
+
     def __str__(self): # toString()
         return self.title
 
