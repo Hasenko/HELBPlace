@@ -18,6 +18,7 @@ class Post(models.Model):
         return reverse('post-detail', kwargs={'pk': self.pk})
 """
 class Canvas(models.Model):
+
     title = models.CharField(max_length=100)
     width = models.PositiveIntegerField(default=100)
     height = models.PositiveIntegerField(default=100)
@@ -43,6 +44,12 @@ class Canvas(models.Model):
         pixel_list.append(pixel)
 
         return pixel_list
+
+    def change_pixel(self, content, pixel_index: int, new_color: str):
+        pixel_list = self.get_pixel_list(content)
+        pixel_list[pixel_index] = new_color
+
+        return ''.join(pixel_list)
 
     def __str__(self): # toString()
         return self.title

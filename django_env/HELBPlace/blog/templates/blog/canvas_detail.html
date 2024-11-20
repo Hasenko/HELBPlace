@@ -13,22 +13,59 @@
                     </div>
                 {% endif %}
             </div>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
             <h2 class="article-title">{{ object.title }}</h2>
-            <form method="POST">
-                {% csrf_token %}
-                <table class="pixel-grid">
-                    <tr>
-                    {% for color in pixel_list %}
-                        <td>
-                            <button type="submit" class="pixel" style="background-color: {{ color }};"></button>
-                        </td>
-                        {% if forloop.counter|divisibleby:object.width %}
-                    </tr>
-                    <tr>
-                        {% endif %}
-                    {% endfor %}
-                </table>
-            </form>
+            <table class="pixel-grid">
+                <tr>
+                {% for color in pixel_list %}
+                    <td>
+                        <button id="pixel" class="pixel" style="background-color: {{ color }};" name="pixel" value="{{ forloop.counter0 }}"></button>
+                    </td>
+                    {% if forloop.counter|divisibleby:object.width %}
+                </tr>
+                <tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+            <p id="test"></p>
+            <script type="text/javascript">
+                $('.pixel-grid').on("click", ".pixel", function(){
+                    var pixelIndex, color, clickedPixel;
+
+                    pixelIndex = $(this).attr("value");
+                    color = $('#selected-color').attr("color");
+                    clickedPixel = $(this);
+
+                    $.ajax(
+                    {
+                        type:"POST",
+                        url: "{% url 'canvas-detail' object.id %}",
+                        data:{
+                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                            pixel: pixelIndex,
+                            new_color: color
+                        },
+                        success: function(data) {
+                            clickedPixel.css("background-color", color)
+                        },
+                    })
+                });
+            </script>
+            <script type="text/javascript">
+                function refresh() {
+                    $.ajax(
+                    {
+                        type:"GET",
+                        url: "{% url 'canvas-detail' object.id %}",
+                        success: function(data) {
+                            $('.pixel-grid').html($(data).find('.pixel-grid').html());
+                        },
+                    })
+                }
+
+                setInterval(refresh, 1000);
+            </script>
         </div>
     </article>
+    {% include 'blog/color_pallet.html' %}
 {% endblock content %}

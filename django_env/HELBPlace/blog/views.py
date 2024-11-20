@@ -5,6 +5,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Canvas
 
+import logging
+
 class CanvasListView(ListView):
     model = Canvas
     template_name = 'blog/home.html'  # by default: <app>/<model>_<viewtype>.html
@@ -21,6 +23,23 @@ class CanvasListView(ListView):
         return queryset
 class CanvasDetailView(DetailView):
     model = Canvas
+    
+    def post(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+
+        if request.method == 'POST':
+            pixel_index = request.POST.get("pixel", "")
+            new_color = request.POST.get("new_color", "")
+            canvas = Canvas.objects.filter(id=pk).first()
+
+            logging.getLogger("mylogger").info(pixel_index)
+            logging.getLogger("mylogger").info(new_color)
+            logging.getLogger("mylogger").info(canvas)
+            
+            canvas.content = Canvas.change_pixel(Canvas, canvas.content, int(pixel_index), new_color)
+            canvas.save()
+
+            return redirect("canvas-detail", pk=pk)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -62,4 +81,3 @@ def about(request):
         'title': 'About'
     }
     return render(request, 'blog/about.html', context)
-
