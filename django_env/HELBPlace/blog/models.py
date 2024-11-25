@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils.timezone import localtime
 
 # Create your models here.
 """
@@ -64,3 +65,13 @@ class Canvas(models.Model):
         if self.content == "blank":
             self.content = blank(self.width, self.height)
         return super().save()
+    
+
+class Contribution(models.Model):
+    canvas = models.ForeignKey(Canvas, on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    time_placed = models.DateTimeField()
+
+    def __str__(self) -> str:
+        formatted_time = localtime(self.time_placed).strftime('%Y-%m-%d %H:%M:%S')
+        return f'{self.user} modification on {self.canvas} : {formatted_time}'

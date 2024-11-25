@@ -1,11 +1,24 @@
-from django.forms import BaseModelForm
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Canvas
+from .models import Canvas, Contribution
+from django.utils import timezone
 
-import logging
+from datetime import timedelta
+
+def get_timer(request, pk):
+    canvas = Canvas.objects.filter(id=pk).first()
+    contribution = Contribution.objects.filter(canvas=canvas, user=request.user).first()
+
+    wait_time = contribution.time_placed + timedelta(minutes=canvas.time_to_wait)
+    remaining_time = (wait_time - timezone.now()).total_seconds()
+
+    if remaining_time < 0:
+        remaining_time = 0
+
+
+    return JsonResponse({'remaining_time': remaining_time})
 
 class CanvasListView(ListView):
     model = Canvas
@@ -21,23 +34,41 @@ class CanvasListView(ListView):
         for canvas in queryset:
             canvas.content = Canvas.get_pixel_list(canvas.content)
         return queryset
-class CanvasDetailView(DetailView):
+class CanvasDetailView(LoginRequiredMixin, DetailView):
     model = Canvas
     
     def post(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
 
         if request.method == 'POST':
-            pixel_index = request.POST.get("pixel", "")
-            new_color = request.POST.get("new_color", "")
             canvas = Canvas.objects.filter(id=pk).first()
+            # self.request.user -> USER that clicked the pixel
 
-            logging.getLogger("mylogger").info(pixel_index)
-            logging.getLogger("mylogger").info(new_color)
-            logging.getLogger("mylogger").info(canvas)
-            
-            canvas.content = Canvas.change_pixel(Canvas, canvas.content, int(pixel_index), new_color)
-            canvas.save()
+            # Check for an existing contribution
+            contribution = Contribution.objects.filter(
+                canvas=canvas,
+                user=self.request.user
+            ).first()
+
+            if contribution:
+                # Calculate the time threshold
+                wait_time = contribution.time_placed + timedelta(minutes=canvas.time_to_wait)
+
+                if wait_time <= timezone.now():
+                    # Allow the user to update the contribution
+                    contribution.time_placed = timezone.now()
+                    contribution.save()
+
+                    pixel_index = request.POST.get("pixel", "")
+                    new_color = request.POST.get("new_color", "")
+                    canvas.content = Canvas.change_pixel(Canvas, canvas.content, int(pixel_index), new_color)
+                    canvas.save()
+            else:
+                Contribution.objects.create(
+                    canvas=canvas,
+                    user=self.request.user,
+                    time_placed=timezone.now()
+                )
 
             return redirect("canvas-detail", pk=pk)
 

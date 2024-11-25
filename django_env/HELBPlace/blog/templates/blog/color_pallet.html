@@ -1,13 +1,23 @@
 <div class="media-body">
-    <button class="pixel" style="background-color: #FF0000;" name="selected-color" value="#FF0000"></button>
-    <button class="pixel" style="background-color: #FFD700;" name="selected-color" value="#FFD700"></button>
-    <button class="pixel" style="background-color: #00FFFF;" name="selected-color" value="#00FFFF"></button>
-    <button class="pixel" style="background-color: #000000;" name="selected-color" value="#000000"></button>
-    <button class="pixel" style="background-color: #FFFFFF;" name="selected-color" value="#FFFFFF"></button>
-    <button class="pixel" style="background-color: #00FF00;" name="selected-color" value="#00FF00"></button>
+    <button class="pixel" style="background-color: #FF0000;" name="selected-color" value="#FF0000" onclick="changeSelectedColor(this.value)"></button>
+    <button class="pixel" style="background-color: #FFD700;" name="selected-color" value="#FFD700" onclick="changeSelectedColor(this.value)"></button>
+    <button class="pixel" style="background-color: #00FFFF;" name="selected-color" value="#00FFFF" onclick="changeSelectedColor(this.value)"></button>
+    <button class="pixel" style="background-color: #000000;" name="selected-color" value="#000000" onclick="changeSelectedColor(this.value)"></button>
+    <button class="pixel" style="background-color: #FFFFFF;" name="selected-color" value="#FFFFFF" onclick="changeSelectedColor(this.value)"></button>
+    <button class="pixel" style="background-color: #00FF00;" name="selected-color" value="#00FF00" onclick="changeSelectedColor(this.value)"></button>
 
     <div>
         <h2 class="article-metadata">Selected color :</h2>
-        <div class="pixel" style="background-color: #FF0000;" id="selected-color" color="#FF09AC"></div>
+        <div class="pixel" style="background-color: #FF0000;" id="selected-color" color="#FF0000"></div>
     </div>
-</div
+</div>
+
+<script type="text/javascript">
+    function changeSelectedColor(color) {
+        const selectedColorElement = document.getElementById("selected-color");
+
+        selectedColorElement.style.backgroundColor = color;
+
+        selectedColorElement.setAttribute("color", color);
+    }
+</script>
