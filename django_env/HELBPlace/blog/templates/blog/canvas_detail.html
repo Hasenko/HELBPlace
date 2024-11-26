@@ -1,8 +1,9 @@
 {% extends "blog/base.html" %}
 {% block content %}
     <article class="media content-section">
-        <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}" alt="author image">
+        <!-- <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}" alt="author image"> -->
         <div class="media-body">
+            <!-- 
             <div class="article-metadata">
                 <a class="mr-2" href="#">{{ object.author }}</a>
                 <small class="text-muted">{{ object.date_posted|date:"d/m/Y, H:i:s" }}</small>
@@ -14,13 +15,14 @@
                     </div>
                 {% endif %}
             </div>
+            -->
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-            <h2 class="article-title">{{ object.title }}</h2>
+            <!-- <h2 class="article-title">{{ object.title }}</h2> -->
             <table class="pixel-grid">
                 <tr>
                 {% for color in pixel_list %}
                     <td>
-                        <button id="pixel" class="pixel" style="background-color: {{ color }};" name="pixel" value="{{ forloop.counter0 }}"></button>
+                        <div id="pixel" class="pixel" style="background-color: {{ color }};" name="pixel" value="{{ forloop.counter0 }}"></div>
                     </td>
                     {% if forloop.counter|divisibleby:object.width %}
                 </tr>
@@ -44,10 +46,7 @@
                             csrfmiddlewaretoken: '{{ csrf_token }}',
                             pixel: pixelIndex,
                             new_color: color
-                        },
-                        success: function(data) {
-                            
-                        },
+                        }
                     })
                 });
             </script>
