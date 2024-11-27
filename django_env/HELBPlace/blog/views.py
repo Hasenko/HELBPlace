@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Canvas, Contribution
 from django.utils import timezone
+import logging
 
 from datetime import timedelta
 
@@ -59,6 +60,7 @@ class CanvasDetailView(LoginRequiredMixin, DetailView):
                     contribution.time_placed = timezone.now()
                     contribution.save()
 
+                    logging.debug(request.POST)
                     pixel_index = request.POST.get("pixel", "")
                     new_color = request.POST.get("new_color", "")
                     canvas.content = Canvas.change_pixel(Canvas, canvas.content, int(pixel_index), new_color)

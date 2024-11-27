@@ -11,17 +11,8 @@
                     <small class="text-muted">{{ canvas.date_posted|date:"d/m/Y, H:i:s" }}</small>
                 </div>
                 <h2><a class="article-title" href="{% url 'canvas-detail' canvas.id %}">{{ canvas.title }}</a></h2>
-                <table class="pixel-grid">
-                    {% for color in canvas.content %}
-                        <td>
-                            <div class="pixel" style="background-color: {{ color }};"></div>
-                        </td>
-                        {% if forloop.counter|divisibleby:canvas.width %}
-                            </tr>
-                            <tr>
-                        {% endif %}
-                    {% endfor %}
-                </table>
+                <p>Size : {{ canvas.width }}x{{ canvas.height }}</p>
+                <p>Time to wait : {{ canvas.time_to_wait }}</p>
             </div>
         </article>
     {% endfor %}

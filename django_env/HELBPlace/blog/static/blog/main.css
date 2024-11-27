@@ -83,19 +83,39 @@ a.article-title:hover {
     font-size: 2.5rem;
 }
 
-.pixel {
-    width: 100%;
-    height: 100%;
-}
-td {
-    height: 100px; /* Example height, adjust as needed */
+.pixel-grid td {
     padding: 0; /* Removes padding to ensure div fits perfectly */
     border: 1px solid #000; /* Optional: Adds border to cells for visibility */
+}
+
+.pixel {
+    width: 100%;
+    padding-top: 100%;
+    position: relative;
+}
+
+.pixel:hover {
+    transform: scale(1.1); /* Optional: Slightly enlarge on hover */
 }
 
 
 .pixel-grid {
     width: 100%;
-    height: 100%;
+    height: auto;
     border-collapse: collapse; /* Optional: Removes spacing between table cells */
+}
+
+.color-palette-container {
+    display: flex; /* Arrange child elements in a row */
+    gap: 10px; /* Space between the color palette items */
+}
+
+.color-palet {
+    width: 50px;
+    height: 50px;
+    border: solid;
+}
+
+.color-palet:hover {
+    transform: scale(1.1); /* Optional: Slightly enlarge on hover */
 }
