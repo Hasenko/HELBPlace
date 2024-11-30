@@ -12,7 +12,7 @@
                 </div>
                 <h2><a class="article-title" href="{% url 'canvas-detail' canvas.id %}">{{ canvas.title }}</a></h2>
                 <p>Size : {{ canvas.width }}x{{ canvas.height }}</p>
-                <p>Time to wait : {{ canvas.time_to_wait }}</p>
+                <p>Seconds to wait : {{ canvas.time_to_wait }}</p>
             </div>
         </article>
     {% endfor %}

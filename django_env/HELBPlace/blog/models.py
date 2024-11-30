@@ -21,9 +21,9 @@ class Post(models.Model):
 class Canvas(models.Model):
 
     title = models.CharField(max_length=100)
-    width = models.PositiveIntegerField(default=100)
-    height = models.PositiveIntegerField(default=100)
-    time_to_wait = models.PositiveIntegerField(default=3)
+    width = models.PositiveIntegerField(default=10)
+    height = models.PositiveIntegerField(default=10)
+    time_to_wait = models.PositiveIntegerField(default=10, verbose_name="Time to wait (in seconds)")
 
     content = models.TextField(default='blank')
 
