@@ -1,10 +1,10 @@
+import sys
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Canvas, Contribution
 from django.utils import timezone
-import logging
 
 from datetime import timedelta
 
@@ -12,6 +12,8 @@ def get_timer(request, pk):
     canvas = Canvas.objects.filter(id=pk).first()
     contribution = Contribution.objects.filter(canvas=canvas, user=request.user).first()
 
+    if not contribution:
+        return JsonResponse({'remaining_time': 0})
     wait_time = contribution.time_placed + timedelta(minutes=canvas.time_to_wait)
     remaining_time = (wait_time - timezone.now()).total_seconds()
 
@@ -60,9 +62,9 @@ class CanvasDetailView(LoginRequiredMixin, DetailView):
                     contribution.time_placed = timezone.now()
                     contribution.save()
 
-                    logging.debug(request.POST)
                     pixel_index = request.POST.get("pixel", "")
                     new_color = request.POST.get("new_color", "")
+                    print(request.POST, file=sys.stderr)
                     canvas.content = Canvas.change_pixel(Canvas, canvas.content, int(pixel_index), new_color)
                     canvas.save()
             else:
@@ -71,6 +73,11 @@ class CanvasDetailView(LoginRequiredMixin, DetailView):
                     user=self.request.user,
                     time_placed=timezone.now()
                 )
+                pixel_index = request.POST.get("pixel", "")
+                new_color = request.POST.get("new_color", "")
+                print(request.POST, file=sys.stderr)
+                canvas.content = Canvas.change_pixel(Canvas, canvas.content, int(pixel_index), new_color)
+                canvas.save()
 
             return redirect("canvas-detail", pk=pk)
 
@@ -109,8 +116,5 @@ class CanvasDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         canvas = self.get_object()
         return self.request.user == canvas.author
 
-def about(request):
-    context = {
-        'title': 'About'
-    }
-    return render(request, 'blog/about.html', context)
+def collaborative_canvas(request):
+    return render(request, 'blog/collaborative_canvas.html')

@@ -1,0 +1,53 @@
+<div class="media-body tool-bar">
+    <!-- Color palette -->
+    <div class="color-palette-container">
+        <div class="color-palet" style="background-color: #FF5733;" color="#FF5733" onclick="changeSelectedColor(this.getAttribute('color'))"></div>
+        <div class="color-palet" style="background-color: #FFC300;" color="#FFC300" onclick="changeSelectedColor(this.getAttribute('color'))"></div>
+        <div class="color-palet" style="background-color: #DAF7A6;" color="#DAF7A6" onclick="changeSelectedColor(this.getAttribute('color'))"></div>
+        <div class="color-palet" style="background-color: #33FF57;" color="#33FF57" onclick="changeSelectedColor(this.getAttribute('color'))"></div>
+        <div class="color-palet" style="background-color: #5DADE2;" color="#5DADE2" onclick="changeSelectedColor(this.getAttribute('color'))"></div>
+        <div class="color-palet" style="background-color: #8E44AD;" color="#8E44AD" onclick="changeSelectedColor(this.getAttribute('color'))"></div>
+        <div class="color-palet" style="background-color: #F39C12;" color="#F39C12" onclick="changeSelectedColor(this.getAttribute('color'))"></div>
+        <div class="color-palet" style="background-color: #1F77B4;" color="#1F77B4" onclick="changeSelectedColor(this.getAttribute('color'))"></div>
+        <div class="color-palet" style="background-color: #C0392B;" color="#C0392B" onclick="changeSelectedColor(this.getAttribute('color'))"></div>
+        <div class="color-palet" style="background-color: #D35400;" color="#D35400" onclick="changeSelectedColor(this.getAttribute('color'))"></div>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer">
+        <span class="timer-min">00</span>:<span class="timer-sec">00</span>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            function refreshTimer() {
+                $.ajax({
+                    type: "GET",
+                    url: "{% url 'get_timer' pk=canvas.id %}",
+                    success: function(data) {
+                        let seconds = Math.floor(data.remaining_time % 60).toString().padStart(2, '0');
+                        let minutes = Math.floor((data.remaining_time / 60) % 60).toString().padStart(2, '0');
+
+                        $('.timer-min').html(`${minutes}`);
+                        $('.timer-sec').html(`${seconds}`);
+                    },
+                });
+            }
+
+            setInterval(refreshTimer, 1000); // Refresh every second
+        })
+    </script>
+
+    <!-- Selected color -->
+    <div class="color-palet" style="background-color: #FF5733;" id="selected-color" color="#FF0000"></div>
+
+    <script type="text/javascript">
+        function changeSelectedColor(color) {
+            const selectedColorElement = document.getElementById("selected-color");
+
+            selectedColorElement.style.backgroundColor = color;
+
+            selectedColorElement.setAttribute("color", color);
+        }
+    </script>
+</div>

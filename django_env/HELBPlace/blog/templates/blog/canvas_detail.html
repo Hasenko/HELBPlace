@@ -1,23 +1,15 @@
 {% extends "blog/base.html" %}
 {% block content %}
     <article class="media content-section">
-        <!-- <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}" alt="author image"> -->
         <div class="media-body">
-            <!-- 
             <div class="article-metadata">
+                <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}" alt="author image">
                 <a class="mr-2" href="#">{{ object.author }}</a>
                 <small class="text-muted">{{ object.date_posted|date:"d/m/Y, H:i:s" }}</small>
                 <small class="text-muted">Time to wait : {{ object.time_to_wait }}</small>
-                {% if object.author == user %}
-                    <div>
-                        <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'canvas-update' object.id %}">Update</a>
-                        <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'canvas-delete' object.id %}">Delete</a>
-                    </div>
-                {% endif %}
             </div>
-            -->
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-            <!-- <h2 class="article-title">{{ object.title }}</h2> -->
+            <h2 class="article-title" style="text-align: center;">{{ object.title }}</h2>
             <table class="pixel-grid">
                 <tr>
                 {% for color in pixel_list %}
@@ -33,23 +25,23 @@
             <script type="text/javascript">
                 $(document).ready(function() {
                     $('.pixel-grid').on("click", ".pixel", function(){
-                    var pixelIndex, color, clickedPixel;
+                        var pixelIndex, color, clickedPixel;
 
-                    pixelIndex = $(this).attr("value");
-                    color = $('#selected-color').attr("color");
-                    clickedPixel = $(this);
+                        pixelIndex = $(this).attr("value");
+                        color = $('#selected-color').attr("color");
+                        clickedPixel = $(this);
 
-                    $.ajax(
-                    {
-                        type:"POST",
-                        url: "{% url 'canvas-detail' object.id %}",
-                        data:{
-                            csrfmiddlewaretoken: '{{ csrf_token }}',
-                            pixel: pixelIndex,
-                            new_color: color
-                        }
-                    })
-                });
+                        $.ajax(
+                        {
+                            type:"POST",
+                            url: "{% url 'canvas-detail' object.id %}",
+                            data:{
+                                csrfmiddlewaretoken: '{{ csrf_token }}',
+                                pixel: pixelIndex,
+                                new_color: color
+                            }
+                        })
+                    });
                 })
             </script>
             <script type="text/javascript">
@@ -70,27 +62,5 @@
             </script>
         </div>
     </article>
-    {% include 'blog/color_pallet.html' %}
-    <div class="media-body">
-        <h2 class="article-title">Time remaining before another pixel can be placed :</h2>
-        <p class="timer"></p>
-        <script type="text/javascript">
-            $(document).ready(function() {
-                function refreshTimer() {
-                    $.ajax({
-                        type: "GET",
-                        url: "{% url 'get_timer' pk=canvas.id %}", // Replace with your actual URL
-                        success: function(data) {
-                            let seconds = Math.floor(data.remaining_time % 60);
-                            let minutes = Math.floor((data.remaining_time / 60) % 60);
-
-                            $('.timer').html(`${minutes}:${seconds}`);
-                        },
-                    });
-                }
-
-                setInterval(refreshTimer, 1000); // Refresh every second
-            })
-        </script>
-    </div>
+    {% include 'blog/tool_bar.html' %}
 {% endblock content %}

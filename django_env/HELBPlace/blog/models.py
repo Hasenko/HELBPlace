@@ -68,8 +68,8 @@ class Canvas(models.Model):
     
 
 class Contribution(models.Model):
-    canvas = models.ForeignKey(Canvas, on_delete=models.PROTECT)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    canvas = models.ForeignKey(Canvas, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     time_placed = models.DateTimeField()
 
     def __str__(self) -> str:

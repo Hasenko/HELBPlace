@@ -83,6 +83,8 @@ a.article-title:hover {
     font-size: 2.5rem;
 }
 
+
+/* PIXEL GRID */
 .pixel-grid td {
     padding: 0; /* Removes padding to ensure div fits perfectly */
     border: 1px solid #000; /* Optional: Adds border to cells for visibility */
@@ -105,9 +107,27 @@ a.article-title:hover {
     border-collapse: collapse; /* Optional: Removes spacing between table cells */
 }
 
+
+/* TOOL BAR*/
+.tool-bar {
+    padding: 10px;
+    display: flex; /* Arrange child elements horizontally */
+    justify-content: space-between; /* Space out elements */
+    align-items: center; /* Center elements vertically */
+    width: 100%; /* Ensure the toolbar takes full width */
+    gap: 10px; /* Optional: Add some spacing between sections */
+    margin-bottom: 50px;
+}
+
+
+/* COLOR PALLET */
 .color-palette-container {
+    flex: 2;
     display: flex; /* Arrange child elements in a row */
-    gap: 10px; /* Space between the color palette items */
+    gap: 5px; /* Space between the color palette items */
+    flex-wrap: wrap;
+    justify-content: flex-start; /* Align items to the start of the row */
+    align-content: flex-start; /* Align rows to the top */
 }
 
 .color-palet {
@@ -117,5 +137,33 @@ a.article-title:hover {
 }
 
 .color-palet:hover {
-    transform: scale(1.1); /* Optional: Slightly enlarge on hover */
+    transform: scale(1.1);
+}
+
+
+/* TIMER */
+.timer {
+    flex: 1;
+    display: flex;
+    align-items: center; /* Center the content vertically */
+    font-size: 5rem;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+}
+
+.timer-min, .timer-sec {
+    margin: 0 0.3em;
+}
+
+.timer-min {
+    margin-left: 0;
+}
+
+.timer-sec {
+    margin-right: 0;
+}
+/* SELECTED COLOR */
+#selected-color {
+    width: 100px;
+    height: 100px;
 }

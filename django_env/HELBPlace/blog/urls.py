@@ -8,6 +8,6 @@ urlpatterns = [
     path('canvas/new/', CanvasCreateView.as_view(), name='canvas-create'),
     path('canvas/<int:pk>/update/', CanvasUpdateView.as_view(), name='canvas-update'),
     path('canvas/<int:pk>/delete/', CanvasDeleteView.as_view(), name='canvas-delete'),
-    path('about/', views.about, name='blog-about'),
+    path('helbplace/', views.collaborative_canvas, name='blog-collaborative-canvas'),
     path('canvas/<int:pk>/timer/', views.get_timer, name='get_timer')
 ]
