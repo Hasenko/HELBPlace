@@ -18,25 +18,27 @@
         <span class="timer-min">00</span>:<span class="timer-sec">00</span>
     </div>
 
-    <script type="text/javascript">
-        $(document).ready(function() {
-            function refreshTimer() {
-                $.ajax({
-                    type: "GET",
-                    url: "{% url 'get_timer' pk=canvas.id %}",
-                    success: function(data) {
-                        let seconds = Math.floor(data.remaining_time % 60).toString().padStart(2, '0');
-                        let minutes = Math.floor(data.remaining_time / 60).toString().padStart(2, '0');
+    {% if id %}
+        <script type="text/javascript">
+            $(document).ready(function() {
+                function refreshTimer() {
+                    $.ajax({
+                        type: "GET",
+                        url: "{% url 'get_timer' pk=id %}",
+                        success: function(data) {
+                            let seconds = Math.floor(data.remaining_time % 60).toString().padStart(2, '0');
+                            let minutes = Math.floor(data.remaining_time / 60).toString().padStart(2, '0');
 
-                        $('.timer-min').html(`${minutes}`);
-                        $('.timer-sec').html(`${seconds}`);
-                    },
-                });
-            }
+                            $('.timer-min').html(`${minutes}`);
+                            $('.timer-sec').html(`${seconds}`);
+                        },
+                    });
+                }
 
-            setInterval(refreshTimer, 1000); // Refresh every second
-        })
-    </script>
+                setInterval(refreshTimer, 1000); // Refresh every second
+            })
+        </script>
+    {% endif %}
 
     <!-- Selected color -->
     <div class="color-palet" style="background-color: #FF5733;" id="selected-color" color="#FF0000"></div>

@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Canvas, Contribution
 from django.utils import timezone
+import requests
 
 from datetime import timedelta
 
@@ -129,4 +130,38 @@ class CanvasDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == canvas.author
 
 def collaborative_canvas(request):
-    return render(request, 'blog/collaborative_canvas.html')
+    if request.method == "POST":
+            # Assuming 'pixel' and 'new_color' are coming from POST data
+            response_data = {}
+            pixel_index = request.POST.get("pixel", "")
+            new_color = request.POST.get("new_color", "")
+            response_data['pixel_index'] = pixel_index
+            response_data['new_color'] = new_color
+            return JsonResponse(response_data, status=200)
+
+    url = "https://helbplace2425.alwaysdata.net/colors.txt"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Check for HTTP errors
+        data = response.text  # Get the content of colors.txt
+        pixel_list = []
+        i = 0
+        pixel = ""
+        for letter in data.replace(";", "").replace("\n", ""):
+            if i%6 == 0 and i != 0:
+                pixel_list.append("#" + pixel)
+                pixel = ""
+
+            pixel += letter
+            i += 1
+
+        pixel_list.append(pixel)
+
+        context = {
+            'collab_table': pixel_list,
+        }
+
+        return render(request, 'blog/collaborative_canvas.html', context)
+    except requests.RequestException as e:
+        return JsonResponse({"error": str(e)}, status=500)
+

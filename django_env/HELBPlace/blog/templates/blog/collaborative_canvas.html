@@ -1,3 +1,63 @@
-{% extends "blog/base.html" %}
-{% block content %}
-{% endblock content %}
+{% include "blog/base.html" %}
+<!-- Display HELBPlace here -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<h2 class="article-title" style="text-align: center;">HELBPlace</h2>
+<table class="pixel-grid">
+    <tr>
+    {% for color in collab_table %}
+        <td>
+            <div id="pixel" class="pixel" style="background-color: {{ color }};" name="pixel" value="{{ forloop.counter0 }}"></div>
+        </td>
+        {% if forloop.counter|divisibleby:128 %}
+    </tr>
+    <tr>
+        {% endif %}
+    {% endfor %}
+</table>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.pixel-grid').on("click", ".pixel", function(){
+            var pixelIndex, color, clickedPixel;
+
+            pixelIndex = $(this).attr("value");
+            color = $('#selected-color').attr("color");
+            clickedPixel = $(this);
+
+            $.ajax(
+            {
+                type:"POST",
+                url: "{% url 'blog-collaborative-canvas' %}",
+                data:{
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    pixel: pixelIndex,
+                    new_color: color
+                }
+            })
+        });
+    })
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        function refresh_helbplace() {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-collaborative-canvas' %}",
+                success: function(data) {
+                    /*
+                    $('.pixel-grid').html($(data).find('.pixel-grid').html()); // nothing
+                    console.log(typeof data); // string
+                    console.log(data) // return an html document with in it a table with class pixel-grid
+                    console.log($(data).find('.pixel-grid').html()) // undifined, why ???
+                    */
+                    // Ensure you treat the response as a DOM element
+                    var parsedData = $(data); // Parse the HTML string into jQuery object
+                    var pixelGridContent = parsedData.find('table').html(); // Find the content inside .pixel-grid
+                },
+            });
+        }
+
+        setInterval(refresh_helbplace, 1000); // Refresh every second
+    })
+</script>
+<!-- Tool bar -->
+{% include 'blog/tool_bar.html' %}
