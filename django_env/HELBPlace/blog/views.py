@@ -131,12 +131,27 @@ class CanvasDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 def collaborative_canvas(request):
     if request.method == "POST":
-            # Assuming 'pixel' and 'new_color' are coming from POST data
+            # https://helbplace2425.alwaysdata.net/writer.php?username=eimadd&password=03mpEuHXVXMq&row=0&col=36&hexvalue=000000
             response_data = {}
             pixel_index = request.POST.get("pixel", "")
             new_color = request.POST.get("new_color", "")
-            response_data['pixel_index'] = pixel_index
-            response_data['new_color'] = new_color
+            # 128 / 72
+            # exemple for pixel_index = 345
+            row = int(int(pixel_index) / 128)
+            col = int(int(pixel_index) % 128)
+            data = {
+                'username': 'eimadd',
+                'password': '03mpEuHXVXMq',
+                'row': row,
+                'col': col,
+                'hexvalue': new_color,
+                }
+            
+
+            r = requests.get('https://helbplace2425.alwaysdata.net/writer.php', params=data)
+            response_data['message'] = r.content.decode()
+            response_data['data'] = data
+
             return JsonResponse(response_data, status=200)
 
     url = "https://helbplace2425.alwaysdata.net/colors.txt"
