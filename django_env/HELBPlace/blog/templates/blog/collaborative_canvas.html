@@ -31,6 +31,21 @@
                     csrfmiddlewaretoken: '{{ csrf_token }}',
                     pixel: pixelIndex,
                     new_color: color
+                },
+                success: function(data) {
+                    var sec = 9;
+                    var timer = setInterval(function(){
+                        $('.timer-sec').html(`0${sec}`);
+                        sec--;
+                        if (sec < 0) {
+                            clearInterval(timer);
+                        }
+                    }, 1000);
+
+                    console.log(data);
+                },
+                error: function(data) {
+                    console.log(data)
                 }
             })
         });
@@ -49,10 +64,12 @@
                     console.log(data) // return an html document with in it a table with class pixel-grid
                     console.log($(data).find('.pixel-grid').html()) // undifined, why ???
                     */
-                    // Ensure you treat the response as a DOM element
-                    var parsedData = $(data); // Parse the HTML string into jQuery object
-                    var pixelGridContent = parsedData.find('table').html(); // Find the content inside .pixel-grid
-                },
+
+                    var a = document.createElement( 'html' );
+                    a.innerHTML = data;
+                    
+                    $('.pixel-grid').html(a.getElementsByTagName("table")[0]);
+                }
             });
         }
 

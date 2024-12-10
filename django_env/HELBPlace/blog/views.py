@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Canvas, Contribution
+from .models import Canvas, Contribution, CanvasStatistics
 from django.utils import timezone
 import requests
 
@@ -52,47 +52,46 @@ class CanvasDetailView(LoginRequiredMixin, DetailView):
         print(f"pk : {pk}", file=sys.stderr)
         if request.method == 'POST':
             response_data = {}
-            canvas = Canvas.objects.filter(id=pk).first()
-            # self.request.user -> USER that clicked the pixel
+            canvas = Canvas.objects.get(id=pk)
+            user = self.request.user
 
-            # Check for an existing contribution
-            contribution = Contribution.objects.filter(
+            try:
+                pixel_index = int(request.POST.get("pixel", ""))
+                new_color = request.POST.get("new_color", "")
+            except:
+                response_data['error'] = 'Invalid pixel or color data.'
+                return JsonResponse(response_data, status=400)
+
+            contribution, contribution_was_created = Contribution.objects.get_or_create(
                 canvas=canvas,
-                user=self.request.user
-            ).first()
+                user=user,
+                defaults={'time_placed': timezone.now()}
+            )
 
-            if contribution:
-                # Calculate the time threshold
+            # Check wait time if not a new contribution
+            if not contribution_was_created:
                 wait_time = contribution.time_placed + timedelta(seconds=canvas.time_to_wait)
-
-                if wait_time <= timezone.now():
-                    # Allow the user to update the contribution
-                    contribution.time_placed = timezone.now()
-                    contribution.save()
-
-                    pixel_index = request.POST.get("pixel", "")
-                    new_color = request.POST.get("new_color", "")
-                    print(request.POST, file=sys.stderr)
-                    canvas.content = Canvas.change_pixel(Canvas, canvas.content, int(pixel_index), new_color)
-                    canvas.save()
-                    response_data['message'] = 'Color modified successfuly.'
-                else:
+                if wait_time > timezone.now():
                     response_data['error'] = 'You need to wait before changing color pixel.'
                     return JsonResponse(response_data, status=403)
-            else:
-                Contribution.objects.create(
-                    canvas=canvas,
-                    user=self.request.user,
-                    time_placed=timezone.now()
-                )
-                pixel_index = request.POST.get("pixel", "")
-                new_color = request.POST.get("new_color", "")
-                print(request.POST, file=sys.stderr)
-                canvas.content = Canvas.change_pixel(Canvas, canvas.content, int(pixel_index), new_color)
-                canvas.save()
-                response_data['message'] = 'Color modified successfuly.'
 
-        return JsonResponse(response_data)
+            # Update contribution time
+            contribution.time_placed = timezone.now()
+            contribution.save()
+
+            # Update canvas content
+            canvas.content = Canvas.change_pixel(Canvas, canvas.content, pixel_index, new_color)
+            canvas.save()
+
+            # Update statistics
+            stats, stats_was_created = CanvasStatistics.objects.get_or_create(canvas=canvas)
+            today = timezone.now().date().isoformat()
+            stats.contributions_day[today] = stats.contributions_day.get(today, 0) + 1
+            stats.contributions_user[str(user.id)] = stats.contributions_user.get(str(user.id), 0) + 1
+            stats.save()
+
+            response_data['message'] = 'Color modified successfully.'
+            return JsonResponse(response_data)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -131,7 +130,6 @@ class CanvasDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 def collaborative_canvas(request):
     if request.method == "POST":
-            # https://helbplace2425.alwaysdata.net/writer.php?username=eimadd&password=03mpEuHXVXMq&row=0&col=36&hexvalue=000000
             response_data = {}
             pixel_index = request.POST.get("pixel", "")
             new_color = request.POST.get("new_color", "")
@@ -152,7 +150,11 @@ def collaborative_canvas(request):
             response_data['message'] = r.content.decode()
             response_data['data'] = data
 
-            return JsonResponse(response_data, status=200)
+            if (response_data['message'].startswith("Erreur")):
+                status = 400
+            else:
+                status = 200
+            return JsonResponse(response_data, status=status)
 
     url = "https://helbplace2425.alwaysdata.net/colors.txt"
     try:

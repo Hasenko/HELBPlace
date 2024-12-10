@@ -75,3 +75,11 @@ class Contribution(models.Model):
     def __str__(self) -> str:
         formatted_time = localtime(self.time_placed).strftime('%Y-%m-%d %H:%M:%S')
         return f'{self.user} modification on {self.canvas} : {formatted_time}'
+    
+class CanvasStatistics(models.Model):
+    canvas = models.ForeignKey(Canvas, on_delete=models.CASCADE)
+    contributions_day = models.JSONField(default=dict)
+    contributions_user = models.JSONField(default=dict)
+
+    def __str__(self):
+        return f'{self.canvas.title} Statistics'
