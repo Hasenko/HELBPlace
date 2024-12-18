@@ -167,3 +167,51 @@ a.article-title:hover {
     width: 100px;
     height: 100px;
 }
+
+/* GRAPH CANVAS */
+#graph {
+    width: 100%;
+    height: 400px;
+}
+
+/* SCOREBOARD */
+.scoreboard table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.scoreboard table, .scoreboard table th, .scoreboard table td {
+    border: 1px solid #000;
+}
+
+.scoreboard table th {
+    padding: 8px;
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+.scoreboard table td {
+    padding: 8px;
+    text-align: left;
+}
+
+.scoreboard table tr:first-child th {
+    background-color: #5F788A;
+    color: #fff;
+}
+
+/* Highlight Top 3 Rows */
+.scoreboard table tr:nth-child(2) {
+    background-color: #FFD700; /* Gold for 1st place */
+    font-weight: bold;
+}
+
+.scoreboard table tr:nth-child(3) {
+    background-color: #C0C0C0; /* Silver for 2nd place */
+    font-weight: bold;
+}
+
+.scoreboard table tr:nth-child(4) {
+    background-color: #CD7F32; /* Bronze for 3rd place */
+    font-weight: bold;
+}

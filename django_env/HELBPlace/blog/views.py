@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Canvas, Contribution, CanvasStatistics
 from django.utils import timezone
+from django.contrib.auth.models import User
 import requests
 
 from datetime import timedelta
@@ -13,6 +14,24 @@ from django.http import HttpResponseRedirect
 
 def redirect(request):
     return HttpResponseRedirect("/blog/")
+
+def get_stats(request, pk):
+    response_data = {}
+    canvas = Canvas.objects.filter(id=pk).first()
+    stats = CanvasStatistics.objects.filter(canvas=canvas).first()
+
+    response_data['canvas_graph'] = stats.contributions_day
+
+    contrib_user = stats.contributions_user
+    canvas_scoreboard = {}
+    for key in contrib_user:
+        username = User.objects.filter(id=key).first().username
+        canvas_scoreboard[username] = contrib_user[key]
+
+    canvas_scoreboard = dict(sorted(canvas_scoreboard.items(), key=lambda item: item[1], reverse=True))
+    response_data['canvas_scoreboard'] = canvas_scoreboard
+
+    return JsonResponse(response_data)
 
 def get_timer(request, pk):
     canvas = Canvas.objects.filter(id=pk).first()

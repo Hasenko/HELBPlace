@@ -10,4 +10,5 @@ urlpatterns = [
     path('canvas/<int:pk>/delete/', CanvasDeleteView.as_view(), name='canvas-delete'),
     path('helbplace/', views.collaborative_canvas, name='blog-collaborative-canvas'),
     path('canvas/<int:pk>/timer/', views.get_timer, name='get_timer'),
+    path('canvas/<int:pk>/stats/', views.get_stats, name='get_canvas_stats'),
 ]

@@ -1,11 +1,80 @@
 <article class="media content-section">
     <div class="media-body">
         <h2 class="article-title">Statistics :</h2>
-        <div class="media-body" style="background-color: red;">
-            <p>d</p>
+        <div class="media-body">
+            <canvas id="graph"></canvas>
         </div>
-        <div class="media-body" style="background-color: green;">
-            <p>a</p>
+        <br>
+        <div class="media-body">
+            <div id="scoreboard" class="scoreboard"></div>
         </div>
     </div>
 </article>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        function getStats() {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'get_canvas_stats' object.id %}",
+                success: function(data) {
+                    // Graph
+                    const xArray = Object.keys(data.canvas_graph);
+                    const yArray = Object.values(data.canvas_graph);
+
+                    new Chart("graph", {
+                        type: "line",
+                        data: {
+                            labels: xArray,
+                            datasets: [{
+                                fill: false,
+                                lineTension: 0,
+                                backgroundColor: "rgba(0,0,255,1.0)",
+                                borderColor: "rgba(0,0,255,0.1)",
+                                data: yArray
+                            }]
+                        },
+                        options: {
+                            legend: { display: false },
+                            scales: {
+                                yAxes: [{ ticks: { min: Math.min(...yArray), max: Math.max(...yArray) } }],
+                            }
+                        }
+                    });
+
+                    // Scoreboard
+                    console.log(data.canvas_scoreboard);
+
+                    var headers = ["Position", "Name", "Pixel placed"];
+                    var table = document.createElement("TABLE");
+                    table.classList.add("scoreboard-table");
+
+                    // Create the header row
+                    var header = table.createTHead();
+                    var headerRow = header.insertRow(0);
+                    headers.forEach((headerText) => {
+                        var cell = document.createElement("TH");
+                        cell.innerHTML = headerText;
+                        headerRow.appendChild(cell);
+                    });
+
+                    // Insert data rows
+                    var i = 0;
+                    for (const [username, nbPixel] of Object.entries(data.canvas_scoreboard)) {
+                        var row = table.insertRow();
+                        row.insertCell(0).innerHTML = ++i;
+                        row.insertCell(1).innerHTML = username;
+                        row.insertCell(2).innerHTML = nbPixel;
+                    }
+
+                    // Clear and append the table to the scoreboard
+                    var scoreboard = document.getElementById("scoreboard");
+                    scoreboard.innerHTML = "";  // Clear previous content
+                    scoreboard.appendChild(table);
+                }
+            });
+        }
+        getStats();
+    });
+</script>
