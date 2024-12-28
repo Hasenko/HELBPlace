@@ -27,9 +27,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', user_views.register, name='register'),
     path('profile/', user_views.profile, name='profile'),
+    path('profile/<int:pk>/', user_views.UsersProfileDetailView.as_view(), name='user-profile'),
     path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
-    path('blog/', include('blog.urls')), # if an user go to http://127.0.0.1:8000/blog, it will redirect him to blogs.urls. ( path('', views.home, name='blog-home'),), and will go to views.home
+    path('gallery/', include('blog.urls')), # if an user go to http://127.0.0.1:8000/gallery, it will redirect him to gallery.urls. ( path('', views.home, name='blog-home'),), and will go to views.home
 ]
 
 if settings.DEBUG:

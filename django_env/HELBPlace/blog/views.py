@@ -5,28 +5,40 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Canvas, Contribution, CanvasStatistics
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 from django.contrib.auth.models import User
 import requests
-
 from datetime import timedelta
-
+from users.models import UserStatistics
 from django.http import HttpResponseRedirect
 
 def redirect(request):
-    return HttpResponseRedirect("/blog/")
+    return HttpResponseRedirect("/gallery/")
 
 def get_stats(request, pk):
     response_data = {}
     canvas = Canvas.objects.filter(id=pk).first()
     stats = CanvasStatistics.objects.filter(canvas=canvas).first()
 
-    response_data['canvas_graph'] = stats.contributions_day
+    contrib_days = stats.contributions_day
+    if not contrib_days:
+        return JsonResponse({'error': 'no stats available'})
+    min_day = timezone.datetime.strptime(min(contrib_days), "%Y-%m-%d")
+    max_day = timezone.localtime().now()
+
+    # Create a full range of days between min_day and max_day
+    contrib_days_full_range = { 
+        (min_day + timedelta(days=i)).strftime("%Y-%m-%d"): contrib_days.get((min_day + timedelta(days=i)).strftime("%Y-%m-%d"), 0)
+        for i in range((max_day - min_day).days + 1)
+    }
+
+    response_data['canvas_graph'] = contrib_days_full_range
 
     contrib_user = stats.contributions_user
     canvas_scoreboard = {}
     for key in contrib_user:
-        username = User.objects.filter(id=key).first().username
-        canvas_scoreboard[username] = contrib_user[key]
+        user = User.objects.filter(id=key).first()
+        canvas_scoreboard[user.username + "\\" + str(user.id)] = contrib_user[key]
 
     canvas_scoreboard = dict(sorted(canvas_scoreboard.items(), key=lambda item: item[1], reverse=True))
     response_data['canvas_scoreboard'] = canvas_scoreboard
@@ -45,7 +57,6 @@ def get_timer(request, pk):
     if remaining_time < 0:
         remaining_time = 0
 
-
     return JsonResponse({'remaining_time': remaining_time})
 
 class CanvasListView(ListView):
@@ -56,12 +67,41 @@ class CanvasListView(ListView):
 
     def get_queryset(self):
         # Get the base queryset
-        queryset = super().get_queryset()
+        canvases = super().get_queryset()
 
         # Modify the 'content' attribute for each canvas
-        for canvas in queryset:
+        for canvas in canvases:
             canvas.content = Canvas.get_pixel_list(canvas.content)
-        return queryset
+
+        # canvas, contributions_day {date, int}, contributions_user {date, int}
+        canvas_stats = CanvasStatistics.objects.all()
+        
+        canvas_pixel_placed_last_day = {}
+
+        for stats in canvas_stats:
+            contrib_days = stats.contributions_day
+
+            if not contrib_days:
+                canvas_pixel_placed_last_day[stats.canvas] = ['N/A', 0]
+                continue
+
+            last_day = sorted(contrib_days.keys(), key=lambda x: timezone.datetime.strptime(x, '%Y-%m-%d'))[-1]
+            last_day_django_format = parse_date(last_day)
+            last_day_value = contrib_days[last_day]
+
+            canvas_pixel_placed_last_day[stats.canvas] = [last_day_django_format, last_day_value]
+
+        sorted_canvas_pixel_placed_last_day = dict(sorted(
+            (canvas for canvas in canvas_pixel_placed_last_day.items() if canvas[1][0] != 'N/A'),
+            key=lambda x: (x[1][0], x[1][1]),
+            reverse=True
+        ))
+
+        na_entries = {canvas: value for canvas, value in canvas_pixel_placed_last_day.items() if value[0] == 'N/A'}
+        sorted_canvas_pixel_placed_last_day.update(na_entries)
+
+        return sorted_canvas_pixel_placed_last_day
+    
 class CanvasDetailView(LoginRequiredMixin, DetailView):
     model = Canvas
     
@@ -102,12 +142,18 @@ class CanvasDetailView(LoginRequiredMixin, DetailView):
             canvas.content = Canvas.change_pixel(Canvas, canvas.content, pixel_index, new_color)
             canvas.save()
 
-            # Update statistics
-            stats, stats_was_created = CanvasStatistics.objects.get_or_create(canvas=canvas)
-            today = timezone.now().date().isoformat()
-            stats.contributions_day[today] = stats.contributions_day.get(today, 0) + 1
-            stats.contributions_user[str(user.id)] = stats.contributions_user.get(str(user.id), 0) + 1
-            stats.save()
+            # Update Canvas statistics
+            canvas_stats, canvas_stats_was_created = CanvasStatistics.objects.get_or_create(canvas=canvas)
+            today = timezone.localtime().now().date().isoformat()
+            canvas_stats.contributions_day[today] = canvas_stats.contributions_day.get(today, 0) + 1
+            canvas_stats.contributions_user[str(user.id)] = canvas_stats.contributions_user.get(str(user.id), 0) + 1
+            canvas_stats.save()
+
+            
+            # Update User statistics
+            user_stats, stats_was_created = UserStatistics.objects.get_or_create(user=user)
+            user_stats.contributions_canvas[str(canvas.id)] = user_stats.contributions_canvas.get(str(canvas.id), 0) + 1
+            user_stats.save()
 
             response_data['message'] = 'Color modified successfully.'
             return JsonResponse(response_data)
@@ -117,6 +163,14 @@ class CanvasDetailView(LoginRequiredMixin, DetailView):
         content = self.object.content
 
         context['pixel_list'] = Canvas.get_pixel_list(content)
+        
+        canvas_statistics = CanvasStatistics.objects.filter(canvas=self.object).first()
+
+        if canvas_statistics and not canvas_statistics.contributions_day:
+            context['has_stats'] = False
+        else:
+            context['has_stats'] = True
+
         return context
 
 class CanvasCreateView(LoginRequiredMixin, CreateView):
@@ -129,7 +183,7 @@ class CanvasCreateView(LoginRequiredMixin, CreateView):
 
 class CanvasUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Canvas
-    fields= ['content']
+    fields= ['title', 'time_to_wait']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -141,7 +195,7 @@ class CanvasUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class CanvasDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Canvas
-    success_url = '/blog' # weird
+    success_url = '/gallery' # weird
 
     def test_func(self):
         canvas = self.get_object()

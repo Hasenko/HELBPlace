@@ -2,6 +2,7 @@ from typing import Iterable
 from django.db import models
 from django.contrib.auth.models import User
 from PIL import Image
+from blog.models import Canvas
 
 # Create your models here.
 
@@ -20,3 +21,10 @@ class Profile(models.Model):
             output_size = (300, 300)
             img.thumbnail(output_size)
             img.save(self.image.path)
+
+class UserStatistics(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    contributions_canvas = models.JSONField(default=dict)
+
+    def __str__(self):
+        return f'{self.user.username} Statistics'

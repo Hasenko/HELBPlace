@@ -2,11 +2,19 @@
 {% block content %}
     <article class="media content-section">
         <div class="media-body">
-            <div class="article-metadata">
-                <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}" alt="author image">
-                <a class="mr-2" href="#">{{ object.author }}</a>
-                <small class="text-muted">{{ object.date_posted|date:"d/m/Y, H:i:s" }}</small>
-                <small class="text-muted">Time to wait : {{ object.time_to_wait }}</small>
+            <div class="article-metadata d-flex align-items-center justify-content-between">
+                <div>
+                    <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}" alt="author image">
+                    <a class="mr-2" href="{% url 'user-profile' object.author.id %}">{{ object.author }}</a>
+                    <small class="text-muted">{{ object.date_posted|date:"d/m/Y · H:i:s" }}</small>
+                    <small class="text-muted">Time to wait : {{ object.time_to_wait }}</small>
+                </div>
+                {% if canvas.author == user %}
+                    <div class="ml-auto">
+                        <a class="btn btn-secondary btn-sm mr-2" href="{% url 'canvas-update' object.id %}">Update</a>
+                        <a class="btn btn-danger btn-sm" href="{% url 'canvas-delete' object.id %}">Delete</a>
+                    </div>
+                {% endif %}
             </div>
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
             <h2 class="article-title" style="text-align: center;">{{ object.title }}</h2>
@@ -63,5 +71,5 @@
         </div>
     </article>
     {% include 'blog/tool_bar.html' with id=canvas.id %}
-    {% include 'blog/canvas_stats.html' with id=canvas.id %}
+    {% include 'blog/canvas_stats.html' with id=canvas.id has_stats=has_stats %}
 {% endblock content %}

@@ -2,18 +2,48 @@
 
 {% block content %}
     <!-- for each post in the canvas disctionnary passed via context, get title, author, date_posted and content -->
-    {% for canvas in canvases %} 
-        <article class="media content-section">
-            <img class="rounded-circle article-img" src="{{ canvas.author.profile.image.url }}" alt="author image">
-            <div class="media-body">
-                <div class="article-metadata">
-                    <a class="mr-2" href="#">{{ canvas.author }}</a>
-                    <small class="text-muted">{{ canvas.date_posted|date:"d/m/Y, H:i:s" }}</small>
+    {% for canvas, last_modif in canvases.items %}
+        <div class="canvas-post">
+            <article class="media content-section">
+                <img class="rounded-circle article-img" src="{{ canvas.author.profile.image.url }}" alt="author image">
+                <div class="media-body">
+                    <div class="article-metadata d-flex align-items-center justify-content-between">
+                        <div>
+                            <a class="mr-2" href="{% url 'user-profile' canvas.author.id %}">{{ canvas.author }}</a>
+                            <small class="text-muted">{{ canvas.date_posted|date:"d/m/Y · H:i:s" }}</small>
+                        </div>
+                        {% if canvas.author == user %}
+                            <div class="ml-auto">
+                                <a class="btn btn-secondary btn-sm mr-2" href="{% url 'canvas-update' canvas.id %}">Update</a>
+                                <a class="btn btn-danger btn-sm" href="{% url 'canvas-delete' canvas.id %}">Delete</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="canvas-desc">
+                        <div class="left">
+                            <div class="top">
+                                <h2><a class="article-title" href="{% url 'canvas-detail' canvas.id %}">{{ canvas.title }}</a></h2>
+                                <p><b>{{ canvas.width }} x {{ canvas.height }}</b></p>
+                            </div>
+                            <div class="bottom">
+                                <p><b>{{ canvas.time_to_wait }}</b> seconds delays</p>
+                            </div>
+                        </div>
+                        <div class="right">
+                            {% if last_modif.0|date:"d/m/Y" %}
+                                <div class="right-left">
+                                    <span id="nb_pixel_placed_last_modif">{{ last_modif.1 }}</span>
+                                </div>
+                                <div class="right-right text-muted">
+                                    <p><i>Pixel placed since last update on </i><b>{{ last_modif.0|date:"d/m/Y" }}</b></p>
+                                </div>
+                            {% else %}
+                                <p class="text-muted" id="na_pixel_placed_last_modif"><i>No pixel placed yet,</i><b><a href="{% url 'canvas-detail' canvas.id %}" style="color: #eb7121;"> be the first one !</a></b></p>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-                <h2><a class="article-title" href="{% url 'canvas-detail' canvas.id %}">{{ canvas.title }}</a></h2>
-                <p>Size : {{ canvas.width }}x{{ canvas.height }}</p>
-                <p>Seconds to wait : {{ canvas.time_to_wait }}</p>
-            </div>
-        </article>
+            </article>
+        </div>
     {% endfor %}
 {% endblock content %}

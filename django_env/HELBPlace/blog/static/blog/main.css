@@ -83,7 +83,6 @@ a.article-title:hover {
     font-size: 2.5rem;
 }
 
-
 /* PIXEL GRID */
 .pixel-grid td {
     padding: 0; /* Removes padding to ensure div fits perfectly */
@@ -100,11 +99,11 @@ a.article-title:hover {
     transform: scale(1.1); /* Optional: Slightly enlarge on hover */
 }
 
-
 .pixel-grid {
     width: 100%;
     height: auto;
-    border-collapse: collapse; /* Optional: Removes spacing between table cells */
+    border-collapse: separate; /* Optional: Removes spacing between table cells */
+    border-spacing: 0 0;
 }
 
 
@@ -214,4 +213,99 @@ a.article-title:hover {
 .scoreboard table tr:nth-child(4) {
     background-color: #CD7F32; /* Bronze for 3rd place */
     font-weight: bold;
+}
+
+@font-face {
+    font-family: 'ArcadeClassic';
+    src: url(font/ARCADECLASSIC.TTF);
+}
+.canvas-desc {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.left {
+    flex: 1;
+}
+
+.right {
+    flex: 1;
+    display: flex;
+    position: relative;
+}
+
+.right-left {
+    flex: 0.5;
+    text-align: right;
+    margin-right: 10px;
+}
+
+.right-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    height: 130%;
+}
+
+#nb_pixel_placed_last_modif {
+    font-family: 'ArcadeClassic';
+    font-size: 70px;
+    color: #eb7121;
+}
+
+#na_pixel_placed_last_modif {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    height: 100%;
+    white-space: pre-wrap;
+}
+
+.minimal-link {
+    color: black;
+}
+
+.minimal-link:hover {
+    text-decoration: none;
+}
+
+/* PROFILE OF USERS */
+
+.table-canvas-user {
+    width: 100%;
+    height: auto;
+    border-collapse: separate; /* Optional: Removes spacing between table cells */
+    border-spacing: 30px;
+}
+
+.table-canvas-user td {
+    width: 20%;
+    padding: 0; /* Removes padding to ensure div fits perfectly */
+}
+
+.canvas-detail-user {
+    width: 100%;
+    position: relative;
+}
+
+.pixel-grid-user {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border: 3px solid black;
+    box-sizing: border-box;
+    border-spacing: 0 0;
+}
+
+.pixel-grid-user td {
+    padding: 0;
+}
+
+.pixel-user {
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding-top: 100%;
 }

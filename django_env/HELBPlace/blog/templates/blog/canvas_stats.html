@@ -1,80 +1,94 @@
-<article class="media content-section">
-    <div class="media-body">
-        <h2 class="article-title">Statistics :</h2>
+{% if has_stats %}
+    <article class="media content-section">
         <div class="media-body">
-            <canvas id="graph"></canvas>
+            <h2 class="article-title">Statistics :</h2>
+            <div class="media-body">
+                <canvas id="graph"></canvas>
+            </div>
+            <br>
+            <div class="media-body">
+                <div id="scoreboard" class="scoreboard"></div>
+            </div>
         </div>
-        <br>
-        <div class="media-body">
-            <div id="scoreboard" class="scoreboard"></div>
-        </div>
-    </div>
-</article>
+    </article>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
-<script type="text/javascript">
-    $(document).ready(function() {
-        function getStats() {
-            $.ajax({
-                type: "GET",
-                url: "{% url 'get_canvas_stats' object.id %}",
-                success: function(data) {
-                    // Graph
-                    const xArray = Object.keys(data.canvas_graph);
-                    const yArray = Object.values(data.canvas_graph);
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            function getStats() {
+                $.ajax({
+                    type: "GET",
+                    url: "{% url 'get_canvas_stats' object.id %}",
+                    success: function(data) {
+                        // Graph
+                        const xArray = Object.keys(data.canvas_graph);
+                        const yArray = Object.values(data.canvas_graph);
 
-                    new Chart("graph", {
-                        type: "line",
-                        data: {
-                            labels: xArray,
-                            datasets: [{
-                                fill: false,
-                                lineTension: 0,
-                                backgroundColor: "rgba(0,0,255,1.0)",
-                                borderColor: "rgba(0,0,255,0.1)",
-                                data: yArray
-                            }]
-                        },
-                        options: {
-                            legend: { display: false },
-                            scales: {
-                                yAxes: [{ ticks: { min: Math.min(...yArray), max: Math.max(...yArray) } }],
+                        new Chart("graph", {
+                            type: "line",
+                            data: {
+                                labels: xArray,
+                                datasets: [{
+                                    fill: true,
+                                    lineTension: 0,
+                                    backgroundColor: "rgba(0,0,255,0.2)",
+                                    borderColor: "rgba(0,0,255,0.1)",
+                                    pointBackgroundColor: "rgba(35, 196, 217, 0.5)",
+                                    data: yArray
+                                }]
+                            },
+                            options: {
+                                legend: { display: false },
+                                scales: {
+                                    yAxes: [{ ticks: { min: 0, max: Math.max(...yArray) + 5 } }],
+                                }
                             }
+                        });
+
+                        // Scoreboard
+                        console.log(data.canvas_scoreboard);
+
+                        var headers = ["Position", "Name", "Pixel placed"];
+                        var table = document.createElement("TABLE");
+                        table.classList.add("scoreboard-table");
+
+                        // Create the header row
+                        var header = table.createTHead();
+                        var headerRow = header.insertRow(0);
+                        headers.forEach((headerText) => {
+                            var cell = document.createElement("TH");
+                            cell.innerHTML = headerText;
+                            headerRow.appendChild(cell);
+                        });
+
+                        // Insert data rows
+                        var i = 0;
+                        for (let [usernameid, nbPixel] of Object.entries(data.canvas_scoreboard)) {
+                            var row = table.insertRow();
+                            const username = usernameid.split("\\")[0];
+                            const id = usernameid.split("\\")[1];
+
+                            row.insertCell(0).innerHTML = ++i;
+
+                            const userProfileUrl = "{% url 'user-profile' 0 %}".replace("0", id);
+                            row.insertCell(1).innerHTML = `<a class="minimal-link" href="${userProfileUrl}">${username}</a>`;
+                            row.insertCell(2).innerHTML = nbPixel;
                         }
-                    });
 
-                    // Scoreboard
-                    console.log(data.canvas_scoreboard);
-
-                    var headers = ["Position", "Name", "Pixel placed"];
-                    var table = document.createElement("TABLE");
-                    table.classList.add("scoreboard-table");
-
-                    // Create the header row
-                    var header = table.createTHead();
-                    var headerRow = header.insertRow(0);
-                    headers.forEach((headerText) => {
-                        var cell = document.createElement("TH");
-                        cell.innerHTML = headerText;
-                        headerRow.appendChild(cell);
-                    });
-
-                    // Insert data rows
-                    var i = 0;
-                    for (const [username, nbPixel] of Object.entries(data.canvas_scoreboard)) {
-                        var row = table.insertRow();
-                        row.insertCell(0).innerHTML = ++i;
-                        row.insertCell(1).innerHTML = username;
-                        row.insertCell(2).innerHTML = nbPixel;
+                        // Clear and append the table to the scoreboard
+                        var scoreboard = document.getElementById("scoreboard");
+                        scoreboard.innerHTML = "";  // Clear previous content
+                        scoreboard.appendChild(table);
                     }
-
-                    // Clear and append the table to the scoreboard
-                    var scoreboard = document.getElementById("scoreboard");
-                    scoreboard.innerHTML = "";  // Clear previous content
-                    scoreboard.appendChild(table);
-                }
-            });
-        }
-        getStats();
-    });
-</script>
+                });
+            }
+            getStats();
+        });
+    </script>
+{% else %}
+    <article class="media content-section">
+        <div class="media-body">
+            <p class="text-muted" id="na_pixel_placed_last_modif"><i>No statistics are available, place a pixel to start !</i></p>
+        </div>
+    </article>
+{% endif%}

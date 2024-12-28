@@ -1,0 +1,52 @@
+{% include "blog/base.html" %}
+<main role="main" class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="canvas-post">
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <h2 class="article-title" style="text-align: center;">{{ user.username }}</h2>
+                    </div>
+                    {% if user_statistics %}
+                        <table class="table-canvas-user">
+                            <tr>
+                            {% for canvas, pixel_placed in user_statistics.items %}
+                                <td>
+                                    <h4 style="text-align: center;"><a class="minimal-link" href="{% url 'canvas-detail' canvas.id %}">{{ canvas }} ({{ canvas.width }}x{{ canvas.height }})</a></h4>
+                                    <table class="pixel-grid-user">
+                                        {% for can, colors in canvas_pixel_list.items %}
+                                            {% if canvas.id == can.id %}
+                                                <tr>
+                                                {% for color in colors %}
+                                                    <td>
+                                                        <div id="pixel" class="pixel-user" style="background-color: {{ color }};" name="pixel" value="{{ forloop.counter0 }}"></div>
+                                                    </td>
+                                                    {% if forloop.counter|divisibleby:can.width %}
+                                                </tr>
+                                                <tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </table>
+                                    <p id="nb_pixel_placed_last_modif" style="text-align: center;">{{ pixel_placed }}</p>
+                                </td>
+                                {% if forloop.counter|divisibleby:4 %}
+                                    </tr>
+                                    <tr>
+                                {% endif %}
+                            {% endfor %}
+                            </tr>
+                        </table>
+                    {% else %}
+                        <br>
+                        <p class="text-muted" id="na_pixel_placed_last_modif"><i>No statistics available, </i><b>{{ user.username }}</b> hasn't placed any pixels yet !</p>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+      </div>
+    </div>
+</main>
