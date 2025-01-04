@@ -149,7 +149,6 @@ class CanvasDetailView(LoginRequiredMixin, DetailView):
             canvas_stats.contributions_user[str(user.id)] = canvas_stats.contributions_user.get(str(user.id), 0) + 1
             canvas_stats.save()
 
-            
             # Update User statistics
             user_stats, stats_was_created = UserStatistics.objects.get_or_create(user=user)
             user_stats.contributions_canvas[str(canvas.id)] = user_stats.contributions_canvas.get(str(canvas.id), 0) + 1

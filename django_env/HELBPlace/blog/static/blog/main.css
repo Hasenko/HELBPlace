@@ -96,7 +96,7 @@ a.article-title:hover {
 }
 
 .pixel:hover {
-    transform: scale(1.1); /* Optional: Slightly enlarge on hover */
+    transform: scale(1.1);
 }
 
 .pixel-grid {
