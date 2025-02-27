@@ -8,3 +8,6 @@ __pycache__/
 *.log
 
 **/migrations/[0-9]*.py
+
+media/profile_pics/*
+!.gitkeep
