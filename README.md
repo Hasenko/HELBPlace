@@ -1,6 +1,6 @@
 # HELBPlace - Web Project II - 2024-2025
 
-> **El Bouchtili Imaddine | February 27th, 2025**
+> **El Bouchtili Imaddine | March 01st, 2025**
 
 --------------------------
 
