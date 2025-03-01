@@ -7,7 +7,7 @@
 ## Introduction
 HELBPlace is a website allowing interaction with collaborative canvases. This website can be compared to the famous collaborative project [r/place](https://www.reddit.com/r/place/), organised by the [Reddit forum](https://www.reddit.com). The project was developed using the Django framework and a functional base presented by [Corey Schafer](https://github.com/CoreyMSchafer). This website was carried out as part of the Web II programming course. This course is part of the second-year Bachelor's degree in Computer Science : Application Development at the Haute École Libre de Bruxelles.
 
-The project guidelines can be found here : [HELBPlace Statements.pdf](https://github.com/Hasenko/HELBPlace/blob/main/HELBPlace%20Statements.pdf) (FR).
+The project guidelines can be found here : [HELBPlace Statements.pdf](<HELBPlace Statements.pdf>) (FR).
 
 ## Technologies
 A number of tools were used to design the website. These tools enable a smoother development and user experience.
@@ -43,10 +43,14 @@ HELBPlace is a collaborative web platform inspired by r/place, enabling users to
 ### Registration and Login
 A registration system has been set up to differentiate between the various users, enable statistical monitoring and allow interaction with the canvases. This system is directly integrated into Django. The default registration form wasn't very organised, so I modified it a little using the `crispy forms` library.
 
+![login page](readme_images/login.png)
+
 ### Creating / Managing canvases
 To create a collaborative canvas, users must be logged in to their account. They also need to specify the dimensions of the canvas and the waiting time between each pixel placed by the participants.
 
 Once the canvas has been created, it appears on the home page of the website, where the canvases are sorted according to their activity. This sorting takes into account two parameters : the date of the last modification made to the canvas and the number of pixels modified on that date. New canvases are displayed at the bottom of the list.
+
+![sorting image](readme_images/sort.png)
 
 Once a canvas has been created, its creators can modify certain information, such as the name of the canvas or the waiting time between each pixel placed. They can also delete their canvas if they wish.
 
@@ -54,6 +58,8 @@ Once a canvas has been created, its creators can modify certain information, suc
 To interact with a canvas, you need to be logged in to an account and click on the title of the canvas from the home page.
 
 Once redirected to the canvas page, it is displayed in the form of a grid. To change the colour of a pixel, the user must first select a colour from the tools bar. A timer is also displayed to indicate the time remaining before the user can place a new pixel.
+
+![canvas image](readme_images/canvas.png)
 
 Canvases are updated automatically every second. This makes for a smoother user experience, as there is no need to refresh the page each time a change is made.
 
@@ -65,5 +71,7 @@ To enable statistical monitoring of collaborative canvases, several pieces of in
 - User who modified the pixel
 
 A graph is created to show the number of pixels modified each day since the canvas was created. A table also shows the number of pixels modified by each user. These two elements are displayed in a section dedicated to canvas statistics.
+
+![statistics image](readme_images/stats.png)
 
 In addition, a user's profile lists all the canvases in which they have participated. These are sorted according to the number of pixels modified by the user on each canvas.
